@@ -5,8 +5,6 @@ import android.bluetooth.BluetoothManager
 import android.content.Context
 import android.content.IntentFilter
 import android.content.pm.PackageManager
-import androidx.compose.animation.core.updateTransition
-import com.imrul.doorlock.Manifest
 import com.imrul.doorlock.domain.lock.BluetoothController
 import com.imrul.doorlock.domain.lock.BluetoothDevice
 import com.imrul.doorlock.domain.lock.BluetoothDeviceDomain
