@@ -2,9 +2,11 @@ package com.imrul.doorlock.data.lock
 
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothManager
+import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.util.Log
 import com.imrul.doorlock.domain.lock.BluetoothController
 import com.imrul.doorlock.domain.lock.BluetoothDevice
 import com.imrul.doorlock.domain.lock.BluetoothDeviceDomain
@@ -12,6 +14,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlin.math.log
 
 
 @SuppressLint("MissingPermission")
@@ -33,16 +36,17 @@ class AndroidBluetoothController(private val context: Context) : BluetoothContro
 
     }
 
-    init {
-        updatePairedDevices()
-    }
-
     private val bluetoothManager by lazy {
         context.getSystemService(BluetoothManager::class.java)
     }
 
+
     private val bluetoothAdapter by lazy {
         bluetoothManager?.adapter
+    }
+
+    init {
+        updatePairedDevices()
     }
 
     override fun startDiscovery() {
@@ -70,14 +74,23 @@ class AndroidBluetoothController(private val context: Context) : BluetoothContro
     }
 
     private fun updatePairedDevices() {
-        if (!hasPermission(android.Manifest.permission.BLUETOOTH_CONNECT)) {
+
+        Log.d(TAG, "updatePairedDevices: hello")
+        if (bluetoothManager == null || !hasPermission(android.Manifest.permission.BLUETOOTH_CONNECT)) {
             return
         }
-        bluetoothAdapter
-            ?.bondedDevices
-            ?.map { it.toBluetoothDeviceDomain() }?.also { devices ->
+
+        val adapter = bluetoothAdapter
+        if (adapter != null) {
+            try {
+                val bondedDevices = adapter.bondedDevices
+                val devices = bondedDevices.map { it.toBluetoothDeviceDomain() }
                 _pairedDevices.update { devices }
+            } catch (e: Exception) {
+                // Log the exception
+                e.printStackTrace()
             }
+        }
     }
 
     private fun hasPermission(permission: String): Boolean {

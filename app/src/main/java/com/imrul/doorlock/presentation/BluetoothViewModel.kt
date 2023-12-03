@@ -12,7 +12,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class BluetoothViewModel @Inject constructor(
-    private val bluetoothController: BluetoothController
+    val bluetoothController: BluetoothController
 ) : ViewModel() {
     private val _state = MutableStateFlow(BluetoothUIState())
     val state = combine(
