@@ -2,7 +2,6 @@ package com.imrul.doorlock.presentation
 
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
-import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -12,12 +11,13 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -85,7 +85,22 @@ class MainActivity : ComponentActivity() {
                 val viewModel: BluetoothViewModel by viewModels()
                 val state by viewModel.state.collectAsState()
 
-                // A surface container using the 'background' color from the theme
+                LaunchedEffect(key1 = state.errorMessage) {
+                    state.errorMessage?.let { message ->
+                        Toast.makeText(applicationContext, message, Toast.LENGTH_LONG).show()
+                    }
+                }
+
+                LaunchedEffect(key1 = state.isConnected) {
+                    if (state.isConnected) {
+                        Toast.makeText(
+                            applicationContext,
+                            "You are connected!",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
@@ -100,11 +115,30 @@ class MainActivity : ComponentActivity() {
 //                        LockButton("Unlock") { checkIfBluetoothIsEnabled(this@MainActivity) }
 //                    }
 
-                    DeviceScreen(
-                        state = state,
-                        onStartScan = viewModel::startScan,
-                        onStopScan = viewModel::stopScan
-                    )
+                    when {
+                        state.isConnecting -> {
+                            Column(
+                                modifier = Modifier.fillMaxSize(),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                CircularProgressIndicator()
+                                Text(text = "Connecting...")
+                            }
+                        }
+
+                        else -> {
+                            DeviceScreen(
+                                state = state,
+                                onStartScan = viewModel::startScan,
+                                onStopScan = viewModel::stopScan,
+                                onDeviceClicked = viewModel::connectToDevice,
+                                onStartServer = viewModel::wairForIncomingConnections,
+                                onLockDoor = viewModel::lockDoor,
+                                onUnlockDoor = viewModel::unlockDoor
+                            )
+                        }
+                    }
                 }
             }
         }

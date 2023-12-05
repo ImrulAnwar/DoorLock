@@ -63,6 +63,14 @@ class BluetoothViewModel @Inject constructor(
         deviceConnectionJob = bluetoothController.startBluetoothServer().listen()
     }
 
+    fun lockDoor() {
+
+    }
+
+    fun unlockDoor() {
+
+    }
+
     fun startScan() {
         bluetoothController.startDiscovery()
     }

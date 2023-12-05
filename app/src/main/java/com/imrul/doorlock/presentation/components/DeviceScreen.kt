@@ -23,7 +23,11 @@ import com.imrul.doorlock.presentation.BluetoothUIState
 fun DeviceScreen(
     state: BluetoothUIState,
     onStartScan: () -> Unit,
-    onStopScan: () -> Unit
+    onStopScan: () -> Unit,
+    onDeviceClicked: (BluetoothDevice) -> Unit,
+    onStartServer: () -> Unit,
+    onLockDoor: () -> Unit,
+    onUnlockDoor: () -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -31,22 +35,36 @@ fun DeviceScreen(
         BluetoothDeviceList(
             pairedDevices = state.pairedDevices,
             scannedDevices = state.scannedDevices,
-            onClick = {},
+            onClick = onDeviceClicked,
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)
         )
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceAround
+            horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             Button(onClick = onStartScan) {
                 Text(text = "Start Scan")
+            }
+            Button(onClick = onStartServer) {
+                Text(text = "Start Server")
             }
             Button(onClick = onStopScan) {
                 Text(text = "Stop Scan")
             }
 
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            Button(onClick = onLockDoor) {
+                Text(text = "Lock Door")
+            }
+            Button(onClick = onUnlockDoor) {
+                Text(text = "Unlock Door")
+            }
         }
 
     }
