@@ -11,27 +11,17 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.imrul.doorlock.presentation.components.DeviceScreen
 import com.imrul.doorlock.ui.theme.DoorLockTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -105,16 +95,6 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-
-//                    Row(
-//                        verticalAlignment = Alignment.CenterVertically,
-//                        modifier = Modifier.fillMaxWidth(),
-//                        horizontalArrangement = Arrangement.SpaceEvenly
-//                    ) {
-//                        LockButton("Lock", { lockDevice() })
-//                        LockButton("Unlock") { checkIfBluetoothIsEnabled(this@MainActivity) }
-//                    }
-
                     when {
                         state.isConnecting -> {
                             Column(
@@ -128,12 +108,13 @@ class MainActivity : ComponentActivity() {
                         }
 
                         else -> {
+
                             DeviceScreen(
                                 state = state,
                                 onStartScan = viewModel::startScan,
                                 onStopScan = viewModel::stopScan,
                                 onDeviceClicked = viewModel::connectToDevice,
-                                onStartServer = viewModel::wairForIncomingConnections,
+                                onStartServer = viewModel::waitForIncomingConnections,
                                 onLockDoor = viewModel::lockDoor,
                                 onUnlockDoor = viewModel::unlockDoor
                             )
@@ -142,32 +123,5 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-    }
-}
-
-
-fun lockDevice() {
-
-}
-
-fun unlockDevice() {
-
-}
-
-@Composable
-fun LockButton(text: String, onClick: () -> Unit) {
-    Button(
-        onClick = onClick,
-        colors = ButtonDefaults.buttonColors(containerColor = Color.DarkGray),
-        modifier = Modifier.size(height = 80.dp, width = 140.dp),
-
-        ) {
-        Text(
-            text = text,
-            fontSize = 25.sp,
-            fontFamily = FontFamily.SansSerif,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.align(Alignment.CenterVertically)
-        )
     }
 }

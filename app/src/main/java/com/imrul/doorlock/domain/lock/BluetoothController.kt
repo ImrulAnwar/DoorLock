@@ -16,4 +16,9 @@ interface BluetoothController {
     fun startBluetoothServer(): Flow<ConnectionResult>
     fun connectToDevice(device: BluetoothDevice): Flow<ConnectionResult>
     fun closeConnection()
+    fun sendToHC05(valToSend: String)
+
+    fun lockDoor()
+    fun unlockDoor()
+
 }

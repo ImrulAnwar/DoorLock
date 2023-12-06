@@ -37,6 +37,7 @@ class BluetoothViewModel @Inject constructor(
     private var deviceConnectionJob: Job? = null
 
     init {
+
         bluetoothController.isConnected.onEach { isConnected ->
             _state.update {
                 it.copy(isConnected = isConnected)
@@ -48,6 +49,7 @@ class BluetoothViewModel @Inject constructor(
     }
 
     fun connectToDevice(device: BluetoothDeviceDomain) {
+
         _state.update { it.copy(isConnecting = true) }
         deviceConnectionJob = bluetoothController.connectToDevice(device = device).listen()
     }
@@ -58,17 +60,17 @@ class BluetoothViewModel @Inject constructor(
         _state.update { it.copy(isConnecting = false, isConnected = false) }
     }
 
-    fun wairForIncomingConnections() {
+    fun waitForIncomingConnections() {
         _state.update { it.copy(isConnecting = true) }
         deviceConnectionJob = bluetoothController.startBluetoothServer().listen()
     }
 
     fun lockDoor() {
-
+        bluetoothController.lockDoor()
     }
 
     fun unlockDoor() {
-
+        bluetoothController.unlockDoor()
     }
 
     fun startScan() {

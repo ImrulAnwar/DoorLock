@@ -5,11 +5,13 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothServerSocket
 import android.bluetooth.BluetoothSocket
+import android.content.ContentValues
 import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.material3.contentColorFor
 import com.imrul.doorlock.domain.lock.BluetoothController
 import com.imrul.doorlock.domain.lock.BluetoothDevice
@@ -17,6 +19,7 @@ import com.imrul.doorlock.domain.lock.BluetoothDeviceDomain
 import com.imrul.doorlock.domain.lock.ConnectionResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -31,6 +34,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.io.IOError
 import java.io.IOException
+import java.io.InputStream
+import java.io.OutputStream
 import java.util.UUID
 import kotlin.math.log
 
@@ -77,6 +82,9 @@ class AndroidBluetoothController(private val context: Context) : BluetoothContro
     private var currentServerSocket: BluetoothServerSocket? = null
     private var currentClientSocket: BluetoothSocket? = null
 
+    private lateinit var outputStream: OutputStream
+    private lateinit var inputStream: InputStream
+
     init {
         updatePairedDevices()
         context.registerReceiver(
@@ -93,6 +101,35 @@ class AndroidBluetoothController(private val context: Context) : BluetoothContro
             }
         )
     }
+
+    override fun sendToHC05(valToSend: String) {
+        try {
+            // Check if the BluetoothSocket is connected
+            if (currentClientSocket?.isConnected == true) {
+                inputStream = currentClientSocket!!.inputStream
+                outputStream = currentClientSocket!!.outputStream
+                // Convert the string to bytes and send
+                outputStream.write(valToSend.toByteArray())
+                Thread.sleep(1000)
+                outputStream.flush()
+
+            } else {
+                Toast.makeText(context, "Not Connected to any device", Toast.LENGTH_SHORT)
+                    .show()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    override fun lockDoor() {
+        sendToHC05("1")
+    }
+
+    override fun unlockDoor() {
+        sendToHC05("0")
+    }
+
 
     override fun startDiscovery() {
         if (!hasPermission((android.Manifest.permission.BLUETOOTH_SCAN))) {
@@ -125,7 +162,7 @@ class AndroidBluetoothController(private val context: Context) : BluetoothContro
             if (!hasPermission(android.Manifest.permission.BLUETOOTH_CONNECT)) {
                 throw SecurityException("No BLUETOOTH_CONNECT permission")
             }
-            currentServerSocket = bluetoothAdapter?.listenUsingRfcommWithServiceRecord(
+            currentServerSocket = bluetoothAdapter?.listenUsingInsecureRfcommWithServiceRecord(
                 "lock_service",
                 UUID.fromString(SERVICE_UUID)
             )
@@ -157,28 +194,23 @@ class AndroidBluetoothController(private val context: Context) : BluetoothContro
             val bluetoothDevice = bluetoothAdapter?.getRemoteDevice(device.address)
 
             currentClientSocket = bluetoothDevice
-                ?.createRfcommSocketToServiceRecord(
+                ?.createInsecureRfcommSocketToServiceRecord(
                     UUID.fromString(SERVICE_UUID)
                 )
+
+
             stopDiscovery()
-
-            if (bluetoothAdapter?.bondedDevices?.contains(bluetoothDevice) == false) {
-
-            }
-
-
             currentClientSocket?.let { socket ->
                 try {
                     socket.connect()
+                    kotlinx.coroutines.delay(1000)
                     emit(ConnectionResult.ConnectionEstablished)
                 } catch (e: IOException) {
                     socket.close()
                     currentClientSocket = null
-                    emit(ConnectionResult.Error("Connection was interrupted"))
+                    emit(ConnectionResult.Error("HC 05 is not connected"))
                 }
             }
-        }.onCompletion {
-            closeConnection()
         }.flowOn(Dispatchers.IO)
     }
 
@@ -214,7 +246,7 @@ class AndroidBluetoothController(private val context: Context) : BluetoothContro
     }
 
     companion object {
-        const val SERVICE_UUID = "91b4786c-932e-11ee-b9d1-0242ac120002"
+        const val SERVICE_UUID = "00001101-0000-1000-8000-00805F9B34FB"
     }
 
 }
