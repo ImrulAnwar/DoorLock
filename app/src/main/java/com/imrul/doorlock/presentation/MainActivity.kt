@@ -52,7 +52,7 @@ class MainActivity : ComponentActivity() {
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         askForPermissions()
         setContent {
-            DoorLockTheme {
+            DoorLockTheme() {
                 val viewModel: BluetoothViewModel by viewModels()
                 val state by viewModel.state.collectAsState()
 

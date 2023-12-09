@@ -1,8 +1,6 @@
 package com.imrul.doorlock.presentation.components
 
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,7 +16,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,11 +27,14 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.imrul.doorlock.domain.lock.BluetoothDevice
 import com.imrul.doorlock.presentation.BluetoothUIState
+import com.imrul.doorlock.ui.theme.fontFamily
 
 @Composable
 fun DeviceScreen(
@@ -41,19 +44,19 @@ fun DeviceScreen(
     onDeviceClicked: (BluetoothDevice) -> Unit,
     onStartServer: () -> Unit,
     onLockDoor: () -> Unit,
-    onUnlockDoor: () -> Unit
+    onUnlockDoor: () -> Unit,
 ) {
     onStartScan()
     Column(
         modifier = Modifier.fillMaxSize(),
     ) {
         Text(
-            text = "Paired Devices",
-            fontWeight = FontWeight.Bold, fontSize = 40.sp,
+            text = "DoorLock",
+            fontWeight = FontWeight.Bold, fontSize = 30.sp,
+            textAlign = TextAlign.Center,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
-                .align(Alignment.CenterHorizontally),
+                .padding(10.dp),
             color = Color(0xFF49688D),
         )
         BluetoothDeviceList(
@@ -98,14 +101,18 @@ fun DeviceScreen(
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF6F7F9)),
                         modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 15.dp)
                     ) {
-                        Text(text = "Lock Door", color = Color(0xFF49688D))
+                        Text(text = "Lock Door", color = Color(0xFF49688D), fontFamily = fontFamily)
                     }
                     Button(
                         onClick = onUnlockDoor,
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF6F7F9)),
                         modifier = Modifier.padding(15.dp, 0.dp, 0.dp, 0.dp)
                     ) {
-                        Text(text = "Unlock Door", color = Color(0xFF49688D))
+                        Text(
+                            text = "Unlock Door",
+                            color = Color(0xFF49688D),
+                            fontFamily = fontFamily
+                        )
                     }
                 }
 

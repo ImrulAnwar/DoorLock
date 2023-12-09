@@ -2,14 +2,25 @@ package com.imrul.doorlock.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import com.imrul.doorlock.R
+
+val fontFamily = FontFamily(
+    Font(R.font.regular, FontWeight.Normal),
+    Font(R.font.medium, FontWeight.Bold),
+    Font(R.font.semibold, FontWeight.Bold),
+    Font(R.font.bold, FontWeight.Bold),
+    Font(R.font.extrabold, FontWeight.Bold),
+    // Add more font weights as needed
+)
 
 // Set of Material typography styles to start with
 val Typography = Typography(
     bodyLarge = TextStyle(
-        fontFamily = FontFamily.Default,
+        fontFamily = fontFamily,
         fontWeight = FontWeight.Normal,
         fontSize = 16.sp,
         lineHeight = 24.sp,
