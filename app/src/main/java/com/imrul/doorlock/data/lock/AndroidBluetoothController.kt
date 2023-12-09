@@ -203,7 +203,7 @@ class AndroidBluetoothController(private val context: Context) : BluetoothContro
             currentClientSocket?.let { socket ->
                 try {
                     socket.connect()
-                    kotlinx.coroutines.delay(1000)
+                    delay(1000)
                     emit(ConnectionResult.ConnectionEstablished)
                 } catch (e: IOException) {
                     socket.close()

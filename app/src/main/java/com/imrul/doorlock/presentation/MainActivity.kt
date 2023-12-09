@@ -1,5 +1,6 @@
 package com.imrul.doorlock.presentation
 
+import android.Manifest
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
 import android.content.Intent
@@ -10,6 +11,9 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,6 +26,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.Role.Companion.Image
+import com.imrul.doorlock.R
 import com.imrul.doorlock.presentation.components.DeviceScreen
 import com.imrul.doorlock.ui.theme.DoorLockTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -36,40 +44,13 @@ class MainActivity : ComponentActivity() {
     private val bluetoothAdapter by lazy {
         bluetoothManager?.adapter
     }
-
     private val isBluetoothEnabled: Boolean
         get() = bluetoothAdapter?.isEnabled == true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        val enableBluetoothLauncher = registerForActivityResult(
-            ActivityResultContracts.StartActivityForResult()
-        ) {/*Not Needed*/ }
-
-        val permissionLauncher = registerForActivityResult(
-            ActivityResultContracts.RequestMultiplePermissions()
-        ) { perms ->
-            val canEnableBluetooth = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                perms[android.Manifest.permission.BLUETOOTH_CONNECT] == true
-            } else true
-
-            if (canEnableBluetooth && !isBluetoothEnabled) {
-                enableBluetoothLauncher.launch(
-                    Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
-                )
-            }
-
-        }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            permissionLauncher.launch(
-                arrayOf(
-                    android.Manifest.permission.BLUETOOTH_SCAN,
-                    android.Manifest.permission.BLUETOOTH_CONNECT
-                )
-            )
-        }
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+        askForPermissions()
         setContent {
             DoorLockTheme {
                 val viewModel: BluetoothViewModel by viewModels()
@@ -92,9 +73,16 @@ class MainActivity : ComponentActivity() {
                 }
 
                 Surface(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier
+                        .fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.background),
+                        modifier = Modifier.fillMaxSize(),
+                        contentDescription = "Background Image",
+                        contentScale = ContentScale.Crop
+                    )
                     when {
                         state.isConnecting -> {
                             Column(
@@ -108,7 +96,6 @@ class MainActivity : ComponentActivity() {
                         }
 
                         else -> {
-
                             DeviceScreen(
                                 state = state,
                                 onStartScan = viewModel::startScan,
@@ -122,6 +109,39 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             }
+        }
+    }
+
+    private fun askForPermissions() {
+        val enableBluetoothLauncher = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) {/*Not Needed*/ }
+
+        val permissionLauncher = registerForActivityResult(
+            ActivityResultContracts.RequestMultiplePermissions()
+        ) { perms ->
+
+            // check if bluetooth can be enabled
+            val canEnableBluetooth = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                perms[Manifest.permission.BLUETOOTH_CONNECT] == true
+            } else true
+
+            if (canEnableBluetooth && !isBluetoothEnabled) {
+                //      give permission to the application to turn on bluetooth
+                enableBluetoothLauncher.launch(
+                    Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+                )
+            }
+        }
+
+        //        asking for necessary permissions
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            permissionLauncher.launch(
+                arrayOf(
+                    Manifest.permission.BLUETOOTH_SCAN,
+                    Manifest.permission.BLUETOOTH_CONNECT
+                )
+            )
         }
     }
 }
