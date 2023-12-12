@@ -46,7 +46,6 @@ fun DeviceScreen(
     onLockDoor: () -> Unit,
     onUnlockDoor: () -> Unit,
 ) {
-    onStartScan()
     Column(
         modifier = Modifier.fillMaxSize(),
     ) {
@@ -64,7 +63,8 @@ fun DeviceScreen(
             onClick = onDeviceClicked,
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f)
+                .weight(1f),
+            onStartScan
         )
 
         Box(
@@ -127,15 +127,18 @@ fun DeviceScreen(
 fun BluetoothDeviceList(
     pairedDevices: List<BluetoothDevice>,
     onClick: (BluetoothDevice) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onStartScan: () -> Unit
 ) {
     LazyColumn(modifier = modifier) {
         item {
             Text(
                 text = "Paired Devices",
                 fontWeight = FontWeight.Bold, fontSize = 24.sp,
-                modifier = Modifier.padding(16.dp),
-                color = Color(0xFF49688D)
+                modifier = Modifier
+                    .padding(16.dp)
+                    .clickable { onStartScan() },
+                color = Color(0xFF49688D),
             )
         }
 
